@@ -1,6 +1,8 @@
 ﻿using LabyrinthGameCS;
 using System;
 using System.Collections;
+using System.Configuration;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,7 +11,7 @@ public class Player
 	public string Name { get; set; }
 	public int X { get; set; }
 	public int Y { get; set; }
-	private List<object> inventory = new List<object>() {"Sword", "Axe", "Armour"};
+	private List<object> inventory = new List<object>() {"Sword", "Axe", "Armour", "Potion"};
     public Player(string name = "Default", int x = 0, int y = 0)
 	{
 		this.Name = name;
@@ -43,15 +45,36 @@ public class Player
 		return inventory.Count;
 	}
 
-	private void RemoveItem(object sender, RoutedEventArgs e, UIElement[] items)
+	private void RemoveItem(object sender, RoutedEventArgs e)
 	{
-        foreach (UIElement item in items)
+		List<object> items = (List<object>)((Button)sender).Tag;
+
+        foreach (var item in items)
         {
-			((MainWindow)Application.Current.MainWindow).InvContents.Children.Remove(item);
+			if (item is UIElement)
+			{
+				UIElement element = (UIElement)item;
+				((MainWindow)Application.Current.MainWindow).InvContents.Children.Remove(element);
+			}
+			if (item is not UIElement) 
+			{
+				inventory.Remove(item);
+            }
         }
     }
 
-	public bool OpenInv()
+    protected List<object> BuildItems(object item, List<UIElement> list)
+    {
+		List<object> temp = new List<object>() {item};
+
+        foreach (UIElement it in list)
+        {
+			temp.Insert(1,it);
+        }
+
+        return temp;
+    }
+    public bool OpenInv()
 	{
 		Button[] buttons = new Button[InvSize()];
 		Label[] labels = new Label[InvSize()];
@@ -62,7 +85,9 @@ public class Player
 			Label new_label = new Label() { Content = item.ToString(), Width = 100, Height = 40 };
             new_label.Margin = new Thickness(Coordinates[0]+50, Coordinates[1], 0, 0);
             Button new_button = new Button() { Content = "X", Width = 40, Height = 40 };
-			new_button.Click += (object sender, RoutedEventArgs e) => { };
+			new_button.Click += RemoveItem;
+			List<UIElement> temp = new List<UIElement>() { new_button, new_label };
+			new_button.Tag = BuildItems(item, temp);
 			new_button.Margin = new Thickness(Coordinates[0], Coordinates[1], 0, 0);
             Coordinates[1] += 50;
 			buttons.Append(new_button);
@@ -73,41 +98,3 @@ public class Player
         return true;
 	}
 }
-using System;
-
-public class labrinth
-{
-    public class RectangleForm : Form
-    {
-        public RectangleForm()
-        {
-            this.Size = new Size(400, 300);
-            this.Paint += new PaintEventHandler(DrawRectangle);
-        }
-
-        private void DrawRectangle(object sender, PaintEventArgs e)
-        {
-            //placement: x=50, y=40, width=200, height=100
-            Rectangle rect = new Rectangle(50, 10, 200, 100);
-
-            // Use a brush to fill rectangle
-            using (SolidBrush brush = new SolidBrush(Color.#00ffbc))
-            {
-                e.Graphics.FillRectangle(brush, rect);
-            }
-
-            // Optional: draw outline
-            using (Pen pen = new Pen(Color.Black, 2))
-            {
-                e.Graphics.DrawRectangle(pen, rect);
-            }
-        }
-
-        [STAThread]
-        public static void Main()
-        {
-            Application.Run(new RectangleForm());
-        }
-    }
-}
-
