@@ -20,6 +20,7 @@ namespace LabyrinthGameCS
         public MainWindow()
         {
             InitializeComponent();
+            Application.Current.MainWindow = this;
         }
     
         void Move(object sender, RoutedEventArgs e)
@@ -32,6 +33,22 @@ namespace LabyrinthGameCS
         void OpenInv(object sender, RoutedEventArgs e)
         {
             this.debug.Text = player.Name;
+            this.GameScreen.Visibility = Visibility.Hidden;
+            this.InvScreen.Visibility = Visibility.Visible;
+            player.OpenInv();
+
+        }
+        
+        void CloseInv(object sender, RoutedEventArgs e)
+        {
+            //this.debug.Text = player.Name;
+            this.GameScreen.Visibility = Visibility.Visible;
+            this.InvScreen.Visibility = Visibility.Hidden;
+        }
+
+        void Quit(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }
